@@ -1,1 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozchat Oficial</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #0b141a; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .topo { background: #202c33; padding: 15px; text-align: center; color: #00a884; font-weight: bold; border-bottom: 1px solid #333; }
+        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #202c33; padding: 10px; border-radius: 10px; max-width: 85%; word-wrap: break-word; border: 1px solid #333; }
+        .rodape { background: #202c33; padding: 10px; display: flex; gap: 5px; }
+        input { flex: 1; padding: 12px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
+        button { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50%; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="topo">MOZCHAT 📱</div>
+    <div id="chat"></div>
+    <div class="rodape">
+        <input type="text" id="campo" placeholder="Digite sua mensagem...">
+        <button onclick="enviar()">></button>
+    </div>
 
+    <script>
+        // Configurações do Supabase (Já corrigidas com aspas)
+        const SB_URL = "https://clhuvnncagblyvrrooda.supabase.co"; 
+        const SB_KEY = "sb_publishable_u_Mua1wObLjTr_Z3j7Fn0g_-9sd5Zny"; 
+
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+        async function carregarMensagens() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('mensagens')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) throw error;
+
+                const chat = document.getElementById('chat');
+                chat.innerHTML = '';
+                data.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = "msg";
+                    div.innerHTML = `<b>Membro:</b><br>${m.conteudo}`;
+                    chat.appendChild(div);
+                });
+                chat.scrollTop = chat.scrollHeight;
+            } catch (e) {
+                console.log("Erro ao carregar:", e.message);
+            }
+        }
+
+        async function enviar() {
+            const campo = document.getElementById('campo');
+            const texto = campo.value.trim();
+            if (!texto) return;
+
+            const { error } = await supabaseClient
+                .from('mensagens')
+                .insert([{ usuario: 'Membro', conteudo: texto, tipo: 'texto' }]);
+
+            if (error) {
+                alert("Erro ao enviar: " + error.message);
+            } else {
+                campo.value = '';
+                carregarMensagens();
+            }
+        }
+
+        setInterval(carregarMensagens, 3000);
+        carregarMensagens();
+    </script>
+</body>
+</html>
