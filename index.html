@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozchat Oficial</title>
+    <!-- Conectando com a biblioteca do banco de dados -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #0b141a; color: #e9edef; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #202c33; padding: 15px; text-align: center; color: #00a884; font-weight: bold; border-bottom: 1px solid #333; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #202c33; padding: 10px; border-radius: 8px; max-width: 80%; word-wrap: break-word; font-size: 15px; }
+        .minha-msg { align-self: flex-end; background: #005c4b; }
+        .input-area { background: #202c33; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .btns-arquivos { display: flex; justify-content: space-around; gap: 5px; }
+        .btn-aux { background: #3b4a54; color: white; border: none; padding: 8px; border-radius: 5px; font-size: 11px; flex: 1; }
+        .btn-live { background: #ea0038; font-weight: bold; }
+        .linha-texto { display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
+        .btn-enviar { background: #00a884; color: white; border: none; padding: 10px 18px; border-radius: 50%; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header">MOZCHAT 📱</div>
+
+<div id="chat-container">
+    <div class="msg"><b>Sistema:</b> Conectando ao Mozchat...</div>
+</div>
+
+<div class="input-area">
+    <div class="btns-arquivos">
+        <button class="btn-aux" onclick="alert('Selecionar Foto/Doc')">📁 Foto/Doc</button>
+        <button class="btn-aux" onclick="alert('Gravando Áudio...')">🎤 Áudio</button>
+        <button class="btn-aux btn-live" onclick="alert('Iniciando Live...')">🔴 LIVE</button>
+    </div>
+    <div class="linha-texto">
+        <input type="text" id="campo-msg" placeholder="Sua mensagem...">
+        <button class="btn-enviar" onclick="enviarMensagem()">></button>
+    </div>
+</div>
+
+<script>
+    // --- SEUS DADOS DE CONEXÃO ---
+    const SB_URL = "https://clhuvnncagblyvrrooda.supabase.co";
+    const SB_KEY =sb_publishable_u_Mua1wObLjTr_Z3j7Fn0g_-9sd5Zny; 
+    // ----------------------------
+
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+    // Função para buscar as mensagens no banco de dados
+    async function carregarMensagens() {
+        const { data, error } = await supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.log("Erro ao carregar:", error);
+            return;
+        }
+
+        const container = document.getElementById('chat-container');
+        container.innerHTML = '';
+        data.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = "msg";
+            div.innerHTML = `<b>Membro:</b><br>${msg.conteudo}`;
+            container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Função para enviar uma nova mensagem
+    async function enviarMensagem() {
+        const input = document.getElementById('campo-msg');
+        const texto = input.value.trim();
+
+        if (texto !== "") {
+            const { error } = await supabaseClient
+                .from('mensagens')
+                .insert([{ usuario: 'Membro', conteudo: texto, tipo: 'texto' }]);
+
+            if (error) {
+                alert("Erro ao enviar! Verifique as Policies no Supabase.");
+            } else {
+                input.value = '';
+                carregarMensagens();
+            }
+        }
+    }
+
+    // Atualiza o chat a cada 3 segundos para ver novas mensagens
+    setInterval(carregarMensagens, 3000);
+    carregarMensagens();
+</script>
+
+</body>
+</html>
