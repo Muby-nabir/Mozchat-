@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozchat - Oficial</title>
+    <style>
+        body { font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; background: #0b141a; color: #e9edef; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #202c33; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; }
+        .header h1 { margin: 0; font-size: 18px; color: #00a884; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #202c33; padding: 10px; border-radius: 8px; max-width: 85%; font-size: 14px; position: relative; }
+        .minha { align-self: flex-end; background: #005c4b; }
+        .input-area { background: #202c33; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .controles-arquivos { display: flex; gap: 10px; justify-content: center; font-size: 12px; }
+        .btn-acao { background: #3b4a54; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .live-btn { background: #ea0038 !important; }
+        .input-linha { display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: none; background: #2a3942; color: white; outline: none; }
+        .send-btn { background: #00a884; color: white; border: none; padding: 10px 15px; border-radius: 50%; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Mozchat 📱</h1>
+    <button class="btn-acao live-btn" onclick="alert('Iniciando Live...')">AO VIVO</button>
+</div>
+
+<div id="chat-box">
+    <div class="msg"><b>Sistema:</b> Bem-vindo ao Mozchat! Envie textos, imagens ou áudios.</div>
+</div>
+
+<div class="input-area">
+    <div class="controles-arquivos">
+        <button class="btn-acao" onclick="document.getElementById('file-input').click()">📁 Doc/Foto</button>
+        <button class="btn-acao" onclick="alert('Gravando áudio...')">🎤 Áudio</button>
+        <input type="file" id="file-input" style="display:none" onchange="enviarArquivo(this)">
+    </div>
+    <div class="input-linha">
+        <input type="text" id="msg-input" placeholder="Mensagem...">
+        <button class="send-btn" onclick="enviarTexto()">></button>
+    </div>
+</div>
+
+<script>
+    function adicionarMensagem(texto, classe = "") {
+        const chat = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.className = "msg " + classe;
+        div.innerHTML = texto;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function enviarTexto() {
+        const input = document.getElementById('msg-input');
+        if(input.value) {
+            adicionarMensagem("<b>Você:</b><br>" + input.value, "minha");
+            input.value = "";
+        }
+    }
+
+    function enviarArquivo(input) {
+        if (input.files && input.files[0]) {
+            const nome = input.files[0].name;
+            adicionarMensagem("<b>Você enviou um arquivo:</b><br>📄 " + nome, "minha");
+        }
+    }
+</script>
+
+</body>
+</html>
